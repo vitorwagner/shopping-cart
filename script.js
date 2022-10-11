@@ -41,12 +41,18 @@ const createCustomElement = (element, className, innerText) => {
  * @param {string} product.price - Preço do produto.
  * @returns {Element} Elemento de um item do carrinho.
  */
+
+const cartItemClickListener = (event) => {
+  const item = event.target;
+  item.remove();
+};
+
  const createCartItemElement = ({ id, title, price }) => {
   const cart = document.querySelector('.cart__items');
   const li = document.createElement('li');
   li.className = 'cart__item';
   li.innerText = `ID: ${id} | TITLE: ${title} | PRICE: $${price}`;
-  // li.addEventListener('click', cartItemClickListener);
+  li.addEventListener('click', cartItemClickListener);
   cart.appendChild(li);
 };
 
