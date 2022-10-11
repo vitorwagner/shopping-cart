@@ -1,6 +1,10 @@
 // Esse tipo de comentário que estão antes de todas as funções são chamados de JSdoc,
 // experimente passar o mouse sobre o nome das funções e verá que elas possuem descrições! 
 
+// const { fetchItem } = require("./helpers/fetchItem");
+
+// const { fetchProducts } = require("./helpers/fetchProducts");
+
 // Fique a vontade para modificar o código já escrito e criar suas próprias funções!
 
 /**
@@ -30,6 +34,31 @@ const createCustomElement = (element, className, innerText) => {
 };
 
 /**
+ * Função responsável por criar e retornar um item do carrinho.
+ * @param {Object} product - Objeto do produto.
+ * @param {string} product.id - ID do produto.
+ * @param {string} product.title - Título do produto.
+ * @param {string} product.price - Preço do produto.
+ * @returns {Element} Elemento de um item do carrinho.
+ */
+ const createCartItemElement = ({ id, title, price }) => {
+  const cart = document.querySelector('.cart__items');
+  const li = document.createElement('li');
+  li.className = 'cart__item';
+  li.innerText = `ID: ${id} | TITLE: ${title} | PRICE: $${price}`;
+  // li.addEventListener('click', cartItemClickListener);
+  cart.appendChild(li);
+};
+
+const fetchClickedItem = async (event) => {
+  const button = event.target;
+  const shopItem = button.parentElement;
+  const id = shopItem.querySelector('.item_id').innerText;
+  const fetchedItem = await fetchItem(id);
+  createCartItemElement(fetchedItem);
+};
+
+/**
  * Função responsável por criar e retornar o elemento do produto.
  * @param {Object} product - Objeto do produto. 
  * @param {string} product.id - ID do produto.
@@ -44,7 +73,9 @@ const createProductItemElement = ({ id, title, thumbnail }) => {
   section.appendChild(createCustomElement('span', 'item_id', id));
   section.appendChild(createCustomElement('span', 'item__title', title));
   section.appendChild(createProductImageElement(thumbnail));
-  section.appendChild(createCustomElement('button', 'item__add', 'Adicionar ao carrinho!'));
+  const button = (createCustomElement('button', 'item__add', 'Adicionar ao carrinho!'));
+  button.addEventListener('click', fetchClickedItem);
+  section.appendChild(button);
 
   return section;
 };
@@ -56,28 +87,12 @@ async function loadProducts() {
     .forEach((product) => itemsList.appendChild(createProductItemElement(product)));
 }
 
-/**
- * Função que recupera o ID do produto passado como parâmetro.
- * @param {Element} product - Elemento do produto.
- * @returns {string} ID do produto.
- */
-const getIdFromProductItem = (product) => product.querySelector('span.id').innerText;
-
-/**
- * Função responsável por criar e retornar um item do carrinho.
- * @param {Object} product - Objeto do produto.
- * @param {string} product.id - ID do produto.
- * @param {string} product.title - Título do produto.
- * @param {string} product.price - Preço do produto.
- * @returns {Element} Elemento de um item do carrinho.
- */
-const createCartItemElement = ({ id, title, price }) => {
-  const li = document.createElement('li');
-  li.className = 'cart__item';
-  li.innerText = `ID: ${id} | TITLE: ${title} | PRICE: $${price}`;
-  li.addEventListener('click', cartItemClickListener);
-  return li;
-};
+// /**
+//  * Função que recupera o ID do produto passado como parâmetro.
+//  * @param {Element} product - Elemento do produto.
+//  * @returns {string} ID do produto.
+//  */
+// const getIdFromProductItem = (product) => product.querySelector('span.id').innerText;
 
 window.onload = async () => {
   await loadProducts();
