@@ -93,6 +93,17 @@ async function loadProducts() {
     .forEach((product) => itemsList.appendChild(createProductItemElement(product)));
 }
 
+const clearCart = (event) => {
+  const item = event.target;
+  const list = item.parentElement.querySelector('.cart__items');
+  list.innerHTML = '';
+};
+
+function emptyCart() {
+  const emptyButton = document.querySelector('.empty-cart');
+  emptyButton.addEventListener('click', clearCart);
+}
+
 // /**
 //  * Função que recupera o ID do produto passado como parâmetro.
 //  * @param {Element} product - Elemento do produto.
@@ -102,4 +113,5 @@ async function loadProducts() {
 
 window.onload = async () => {
   await loadProducts();
+  emptyCart();
  };
