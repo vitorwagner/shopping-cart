@@ -91,6 +91,7 @@ async function loadProducts() {
   const products = await fetchProducts('computador');
   products.results
     .forEach((product) => itemsList.appendChild(createProductItemElement(product)));
+  document.querySelector('.loading').remove();
 }
 
 const clearCart = (event) => {
@@ -99,10 +100,18 @@ const clearCart = (event) => {
   list.innerHTML = '';
 };
 
-function emptyCart() {
+const emptyCart = () => {
   const emptyButton = document.querySelector('.empty-cart');
   emptyButton.addEventListener('click', clearCart);
-}
+};
+
+const loading = () => {
+  const itemsList = document.querySelector('.items');
+  const loadingMessage = document.createElement('p');
+  loadingMessage.className = 'loading';
+  loadingMessage.textContent = 'carregando...';
+  itemsList.appendChild(loadingMessage);
+};
 
 // /**
 //  * Função que recupera o ID do produto passado como parâmetro.
@@ -112,6 +121,7 @@ function emptyCart() {
 // const getIdFromProductItem = (product) => product.querySelector('span.id').innerText;
 
 window.onload = async () => {
+  loading();
   await loadProducts();
   emptyCart();
  };
