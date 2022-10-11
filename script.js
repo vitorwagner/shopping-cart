@@ -42,18 +42,30 @@ const createCustomElement = (element, className, innerText) => {
  * @returns {Element} Elemento de um item do carrinho.
  */
 
+const totalPrice = async (id, remove) => {
+  const totalElement = document.querySelector('.total-price');
+  const product = await fetchItem(id);
+  const { price } = product;
+  const currTotal = parseFloat(totalElement.innerText);
+  const newTotal = Math.round((!remove ? currTotal + price : currTotal - price) * 100) / 100;
+  totalElement.innerText = newTotal;
+};
+
 const cartItemClickListener = (event) => {
   const item = event.target;
+  totalPrice(item.id, true);
   item.remove();
 };
 
- const createCartItemElement = ({ id, title, price }) => {
+ const createCartItemElement = async ({ id, title, price }) => {
   const cart = document.querySelector('.cart__items');
   const li = document.createElement('li');
   li.className = 'cart__item';
+  li.id = id;
   li.innerText = `ID: ${id} | TITLE: ${title} | PRICE: $${price}`;
   li.addEventListener('click', cartItemClickListener);
   cart.appendChild(li);
+  await totalPrice(id);
 };
 
 const fetchClickedItem = async (event) => {
@@ -98,6 +110,8 @@ const clearCart = (event) => {
   const item = event.target;
   const list = item.parentElement.querySelector('.cart__items');
   list.innerHTML = '';
+  const totalElement = document.querySelector('.total-price');
+  totalElement.innerText = 0;
 };
 
 const emptyCart = () => {
