@@ -1,6 +1,14 @@
 // Esse tipo de comentário que estão antes de todas as funções são chamados de JSdoc,
 // experimente passar o mouse sobre o nome das funções e verá que elas possuem descrições! 
 
+// const getSavedCartItems = require("./helpers/getSavedCartItems");
+
+// const saveCartItems = require("./helpers/saveCartItems");
+
+// const getSavedCartItems = require("./helpers/getSavedCartItems");
+
+// const saveCartItems = require("./helpers/saveCartItems");
+
 // const { fetchItem } = require("./helpers/fetchItem");
 
 // const { fetchProducts } = require("./helpers/fetchProducts");
@@ -51,13 +59,20 @@ const totalPrice = async (id, remove) => {
   totalElement.innerText = newTotal;
 };
 
+const createCartItem = () => {
+  const cart = Array.from(document.querySelectorAll('.cart__item'));
+  const cartItem = cart.map(({ id }) => id);
+  saveCartItems(cartItem);
+};
+
 const cartItemClickListener = (event) => {
   const item = event.target;
   totalPrice(item.id, true);
   item.remove();
+  createCartItem();
 };
 
- const createCartItemElement = async ({ id, title, price }) => {
+ const createCartItemElement = ({ id, title, price }) => {
   const cart = document.querySelector('.cart__items');
   const li = document.createElement('li');
   li.className = 'cart__item';
@@ -65,7 +80,8 @@ const cartItemClickListener = (event) => {
   li.innerText = `ID: ${id} | TITLE: ${title} | PRICE: $${price}`;
   li.addEventListener('click', cartItemClickListener);
   cart.appendChild(li);
-  await totalPrice(id);
+  createCartItem();
+  totalPrice(id);
 };
 
 const fetchClickedItem = async (event) => {
@@ -94,7 +110,6 @@ const createProductItemElement = ({ id, title, thumbnail }) => {
   const button = (createCustomElement('button', 'item__add', 'Adicionar ao carrinho!'));
   button.addEventListener('click', fetchClickedItem);
   section.appendChild(button);
-
   return section;
 };
 
@@ -127,6 +142,21 @@ const loading = () => {
   itemsList.appendChild(loadingMessage);
 };
 
+const loadSavedCart = async () => {
+  if (localStorage.getItem('cartItems') !== null) {
+  const savedCart = getSavedCartItems();
+  for await (const id of savedCart) {
+    const fetchedItem = await fetchItem(id);
+    createCartItemElement(fetchedItem);
+  }
+  // savedCart.forEach(async (id) => {
+  //   const fetchedItem = await fetchItem(id);
+  //   createCartItemElement(fetchedItem);
+  }
+};
+// Problemas no forEach com async: https://stackoverflow.com/questions/37576685/using-async-await-with-a-foreach-loop 
+// Fix await loop lint: https://stackoverflow.com/questions/52152842/fix-no-await-in-loop-lint-warning
+
 // /**
 //  * Função que recupera o ID do produto passado como parâmetro.
 //  * @param {Element} product - Elemento do produto.
@@ -138,4 +168,5 @@ window.onload = async () => {
   loading();
   await loadProducts();
   emptyCart();
+  loadSavedCart();
  };
