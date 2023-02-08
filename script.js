@@ -50,26 +50,20 @@ const createCustomElement = (element, className, innerText) => {
  * @returns {Element} Elemento de um item do carrinho.
  */
 
-const totalPrice = async (id, remove) => {
+const totalPrice = async (price, remove) => {
   const totalElement = document.querySelector('.total-price');
-  const product = await fetchItem(id);
-  const { price } = product;
   const currTotal = parseFloat(totalElement.innerText);
   const newTotal = Math.round((!remove ? currTotal + price : currTotal - price) * 100) / 100;
   totalElement.innerText = newTotal;
 };
 
-const createCartItem = () => {
-  const cart = Array.from(document.querySelectorAll('.cart__item'));
-  const cartItem = cart.map(({ id }) => id);
-  saveCartItems(cartItem);
-};
-
 const cartItemClickListener = (event) => {
   const item = event.target;
-  totalPrice(item.id, true);
+  totalPrice(item.price, true);
   item.remove();
-  createCartItem();
+  const storage = JSON.parse(localStorage.getItem('cartItems')) || [];
+  localStorage.setItem('cartItems', 
+  JSON.stringify(storage.filter((cartItem) => cartItem.id !== item.id)));
 };
 
  const createCartItemElement = ({ id, title, price }) => {
@@ -77,11 +71,11 @@ const cartItemClickListener = (event) => {
   const li = document.createElement('li');
   li.className = 'cart__item';
   li.id = id;
+  li.price = price;
   li.innerText = `ID: ${id} | TITLE: ${title} | PRICE: $${price}`;
   li.addEventListener('click', cartItemClickListener);
   cart.appendChild(li);
-  createCartItem();
-  totalPrice(id);
+  totalPrice(price);
 };
 
 const fetchClickedItem = async (event) => {
@@ -89,7 +83,10 @@ const fetchClickedItem = async (event) => {
   const shopItem = button.parentElement;
   const id = shopItem.querySelector('.item_id').innerText;
   const fetchedItem = await fetchItem(id);
+  console.log(fetchedItem);
   createCartItemElement(fetchedItem);
+  const storage = JSON.parse(localStorage.getItem('cartItems')) || [];
+  localStorage.setItem('cartItems', JSON.stringify([...storage, fetchedItem]));
 };
 
 /**
@@ -142,12 +139,11 @@ const loading = () => {
   itemsList.appendChild(loadingMessage);
 };
 
-const loadSavedCart = async () => {
+const loadSavedCart = () => {
   if (localStorage.getItem('cartItems') !== null) {
   const savedCart = getSavedCartItems();
-  for await (const id of savedCart) {
-    const fetchedItem = await fetchItem(id);
-    createCartItemElement(fetchedItem);
+  for (const item of savedCart) {
+    createCartItemElement(item);
   }
   // savedCart.forEach(async (id) => {
   //   const fetchedItem = await fetchItem(id);
