@@ -1,19 +1,36 @@
-const localStorageSimulator = require('../mocks/localStorageSimulator');
 const saveCartItems = require('../helpers/saveCartItems');
 
-localStorageSimulator('setItem');
-localStorageSimulator('getItem');
 
-describe('3 - Teste a função saveCartItems', () => {
-  test('1 - Teste se, ao executar saveCartItems com um cartItem como argumento, o método localStorage.setItem é chamado', () => {
-    saveCartItems('cartItem');
-    expect(localStorage.getItem).toHaveBeenCalled();
+describe('saveCartItems', () => {
+
+  beforeEach(() => {
+    localStorageMock = {
+      getItem: jest.fn(),
+      setItem: jest.fn(),
+    };
+    global.localStorage = localStorageMock;
   });
 
-  test('2 - Teste se, ao executar saveCartItems com um cartItem como argumento, o método localStorage.setItem é chamado com dois parâmetros', () => {
-    saveCartItems('cartItem');
-    expect(localStorage.setItem).toHaveBeenCalledWith('cartItems', 'cartItem');
+  it('should add a cart item to local storage', () => {
+    localStorageMock.getItem.mockReturnValue(null);
+    saveCartItems({ id: 1, name: 'item 1', price: 10 });
+    expect(localStorageMock.setItem).toHaveBeenCalledWith(
+      'cartItems',
+      JSON.stringify([{ id: 1, name: 'item 1', price: 10 }])
+    );
   });
 
-  // fail('Teste vazio');
+  it('should add multiple cart items to local storage', () => {
+    localStorageMock.getItem.mockReturnValue(
+      JSON.stringify([{ id: 1, name: 'item 1', price: 10 }])
+    );
+    saveCartItems({ id: 2, name: 'item 2', price: 20 });
+    expect(localStorageMock.setItem).toHaveBeenCalledWith(
+      'cartItems',
+      JSON.stringify([
+        { id: 1, name: 'item 1', price: 10 },
+        { id: 2, name: 'item 2', price: 20 },
+      ])
+    );
+  });
 });
