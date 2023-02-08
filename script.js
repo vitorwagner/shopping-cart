@@ -1,6 +1,8 @@
 // Esse tipo de comentário que estão antes de todas as funções são chamados de JSdoc,
 // experimente passar o mouse sobre o nome das funções e verá que elas possuem descrições! 
 
+// const saveCartItems = require("./helpers/saveCartItems");
+
 // const getSavedCartItems = require("./helpers/getSavedCartItems");
 
 // const saveCartItems = require("./helpers/saveCartItems");
@@ -85,8 +87,7 @@ const fetchClickedItem = async (event) => {
   const fetchedItem = await fetchItem(id);
   console.log(fetchedItem);
   createCartItemElement(fetchedItem);
-  const storage = JSON.parse(localStorage.getItem('cartItems')) || [];
-  localStorage.setItem('cartItems', JSON.stringify([...storage, fetchedItem]));
+  saveCartItems(fetchedItem);
 };
 
 /**
